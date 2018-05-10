@@ -28,7 +28,7 @@ def check_user(id):
 
     nameofuser = userinfo["first_name"] + " " + userinfo["last_name"]
     sex = [["была в сети", "был в сети"], ["в сети", "в сети"]]
-    device = ["", "", "с iPhone", "", "с Android", "", "", "с ПК"]
+    device = ["", "с мобильного", "с iPhone", "", "с Android", "", "с Windows", "с ПК"]
     ms_time = int(userstat["time"]) + 10800
 
     log("i", nameofuser + " " + sex[int(userinfo["online"])][int(userinfo["sex"]) - 1] +
