@@ -18,10 +18,10 @@ def check_user(id):
     get_link = vk_api_link + "users.get?user_ids=" + str(
         id) + "&fields=sex,online,last_seen&access_token=" + access_token + "&v=" + v
 
-    ms = int(round(time.time() * 100))
+    ms = int(round(time.time() * 1000))
     content = HTMLSession().get(get_link)
     json = content.json()
-    countMillis = int(round(time.time() * 100)) - ms
+    countMillis = int(round(time.time() * 1000)) - ms
 
     userinfo = json["response"][0]
     userstat = userinfo["last_seen"]
@@ -65,6 +65,7 @@ if __name__ == "__main__":
 
     while True:
         runtimes += 1
+        print()
         log(TAG, "Программный цикл: " + str(runtimes))
 
         if user is None and user == "":
@@ -72,7 +73,7 @@ if __name__ == "__main__":
         else:
             check_user(user)
 
-        uptime = round(time.time() * 100) - round(startup * 100)
+        uptime = round(time.time() * 1000) - round(startup * 1000)
 
         log(TAG, "Повтор команды через " + str(timer_delay) + " минут.")
         log(TAG, "Uptime: " + str(uptime) + " ms")
