@@ -8,6 +8,7 @@
 from requests_html import HTMLSession
 import sys
 import time
+import os
 
 
 def check_user(id):
@@ -37,12 +38,18 @@ def check_user(id):
 
 
 def log(tag, message):
-    nowtime = time.strftime("%d %b %Y %H:%M:%S", time.localtime())
+    now = time.localtime()
+    log_to_file = open(path + str(now.tm_mday) + ".log", "a")
+
+    nowtime = time.strftime("%d %b %Y %H:%M:%S", now)
     if str(tag) == "i":
         text_return = "\n" + str(nowtime) + ": " + str(message) + "\n"
     else:
         text_return = str(nowtime) + ": " + str(tag) + ": " + str(message)
     print(text_return)
+
+    log_to_file.write(text_return + "\n")
+    log_to_file.close()
 
 
 if __name__ == "__main__":
@@ -51,21 +58,28 @@ if __name__ == "__main__":
     startup = time.time()
     runtimes = 0
 
-    log("i", "\tVK Online checker\t")
+    print("\tVK Online checker\t")
 
     user = None
     timer_delay = 1
     if len(sys.argv) == 2:
         user = sys.argv[1]
     elif len(sys.argv) == 3:
-        timer_delay = int(sys.argv[2])
+        timer_delay = sys.argv[2]
     else:
         user = input("Введите ID пользователя: ")
-        timer_delay = float(input("Введите задержку таймера (мин): "))
+        timer_delay = input("Введите задержку таймера (мин): ")
+
+    now = time.localtime()
+    path = "logs\\" + str(user) + "\\" + str(now.tm_year) + str(now.tm_mon) + "\\"
+
+    if not os.path.exists(path):
+        os.makedirs(path)
 
     while True:
         runtimes += 1
         print()
+        log(TAG, "### ###")
         log(TAG, "Программный цикл: " + str(runtimes))
 
         if user is None and user == "":
@@ -78,4 +92,4 @@ if __name__ == "__main__":
         log(TAG, "Повтор команды через " + str(timer_delay) + " минут.")
         log(TAG, "Uptime: " + str(uptime) + " ms")
 
-        time.sleep(60 * timer_delay)
+        time.sleep(60 * float(timer_delay))
