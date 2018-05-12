@@ -71,7 +71,11 @@ if __name__ == "__main__":
         timer_delay = input("Введите задержку таймера (мин): ")
 
     now = time.localtime()
-    path = "logs\\" + str(user) + "\\" + str(now.tm_year) + str(now.tm_mon) + "\\"
+    if now.tm_mon < 10:
+        month = "0" + str(now.tm_mon)
+    else:
+        month = str(now.tm_mon)
+    path = "logs\\" + str(user) + "\\" + str(now.tm_year) + month + "\\"
 
     if not os.path.exists(path):
         os.makedirs(path)
