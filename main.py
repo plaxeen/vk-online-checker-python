@@ -16,6 +16,7 @@ vkapiuri_tag = "VKAPIURI"
 accesstoken_tag = "ACCESSTOKEN"
 version_tag = "VKAPIVERSION"
 
+
 def check_user(ids):
     TAG = "user checker"
 
@@ -91,14 +92,12 @@ def createConfig(path):
 
 
 def readConfig(path, param):
-
     if not os.path.exists(path):
         createConfig(path)
 
     config = configparser.ConfigParser()
     config.read(path)
     return config.get(config_name, param)
-
 
 
 if __name__ == "__main__":
