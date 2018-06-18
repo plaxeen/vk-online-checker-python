@@ -9,15 +9,19 @@ from requests_html import HTMLSession
 import sys
 import time
 import os
+import configparser
 
+config_name = "Settings"
+vkapiuri_tag = "VKAPIURI"
+accesstoken_tag = "ACCESSTOKEN"
+version_tag = "VKAPIVERSION"
 
 def check_user(ids):
     TAG = "user checker"
-    vk_api_link = "https://api.vk.com/method/"
-    access_token = "2cbc788c2cbc788c2cbc788c082cde2a0322cbc2cbc788c7670e35f9811d37cde017f2b"
-    v = "5.78"
+
     user_ids = ",".join(str(e) for e in ids)
-    get_link = vk_api_link + "users.get?user_ids=" + str(user_ids) + "&fields=sex,online,last_seen&access_token=" + access_token + "&v=" + v
+    get_link = vk_api_link + "users.get?user_ids=" + str(user_ids) + "&fields=sex,online,last_seen&access_token=" + \
+               access_token + "&v=" + v
 
     ms = int(round(time.time() * 1000))
     content = HTMLSession().get(get_link)
@@ -28,6 +32,9 @@ def check_user(ids):
     device = ["", "с мобильного", "с iPhone", "", "с Android", "", "с Windows", "с ПК"]
 
     log("br", "")
+
+    title_mes = None
+
     for i in range(num_of_user):
         userinfo = json["response"][i]
         userstat = userinfo["last_seen"]
@@ -37,9 +44,15 @@ def check_user(ids):
 
         log("online", nameofuser + " " + sex[int(userinfo["online"])][int(userinfo["sex"]) - 1] +
             " " + device[int(userstat["platform"])] + ", " + time.strftime("%d %b %Y %H:%M:%S", ms_time))
-        title_ch(nameofuser + " " + sex[int(userinfo["online"])][int(userinfo["sex"]) - 1] +
-                 " " + device[int(userstat["platform"])] + ", " + time.strftime("%H:%M:%S", ms_time))
+
+        if len(users) > 1:
+            title_mes += nameofuser + " — " + time.strftime("%H:%M:%S", ms_time)
+        else:
+            title_mes = nameofuser + " " + sex[int(userinfo["online"])][int(userinfo["sex"]) - 1] + \
+                        " " + device[int(userstat["platform"])] + ", " + time.strftime("%H:%M:%S", ms_time)
     log("br", "")
+
+    title_ch(title_mes)
 
     log(TAG, "Задержка " + str(countMillis) + " мс.")
 
@@ -66,18 +79,47 @@ def log(tag, message):
     log_to_file.close()
 
 
+def createConfig(path):
+    config = configparser.ConfigParser()
+    config.add_section(config_name)
+    config.set(config_name, vkapiuri_tag, "https://api.vk.com/method/")
+    config.set(config_name, accesstoken_tag, "2cbc788c2cbc788c2cbc788c082cde2a0322cbc2cbc788c7670e35f9811d37cde017f2b")
+    config.set(config_name, version_tag, "5.80")
+
+    with open(path, "w") as config_file:
+        config.write(config_file)
+
+
+def readConfig(path, param):
+
+    if not os.path.exists(path):
+        createConfig(path)
+
+    config = configparser.ConfigParser()
+    config.read(path)
+    return config.get(config_name, param)
+
+
+
 if __name__ == "__main__":
     TAG = "main"
 
     startup = time.time()
     runtimes = 0
 
-    print("\tVK Online checker\t")
+    print("\n\tVK Online checker\t")
+
+    vk_api_link = str(readConfig(".\\config.ini", vkapiuri_tag))
+    access_token = str(readConfig(".\\config.ini", accesstoken_tag))
+    v = str(readConfig(".\\config.ini", version_tag))
+
+    print("\nИнициализация успешна.\nVK API URI = " + vk_api_link + "\nACCESS TOKEN = " + access_token +
+          "\nVK API VERSION = " + v + "\n")
 
     num_of_user = int(input("Колличество отслеживаемых пользователей: "))
     users = []
     for i in range(num_of_user):
-        users.append(input("ID пользователя " + str(i+1) + ": "))
+        users.append(input("ID пользователя " + str(i + 1) + ": "))
     users.sort()
 
     tdelay = 1
@@ -94,15 +136,15 @@ if __name__ == "__main__":
     else:
         month = str(now.tm_mon)
 
-        path = None
-        if len(users) >= 2:
-            users_s = "; ".join(str(e) for e in users)
-            path = "logs\\" + "few users\\" + users_s + "\\" + str(now.tm_year) + month + "\\"
-        else:
-            path = "logs\\" + str(users) + "\\" + str(now.tm_year) + month + "\\"
+    path = None
+    if len(users) > 1:
+        users_s = "; ".join(str(e) for e in users)
+        path = "logs\\" + "few users\\" + users_s + "\\" + str(now.tm_year) + month + "\\"
+    else:
+        path = "logs\\" + str(users[0]) + "\\" + str(now.tm_year) + month + "\\"
 
-        if not os.path.exists(path):
-            os.makedirs(path)
+    if not os.path.exists(path):
+        os.makedirs(path)
 
     while True:
         runtimes += 1
@@ -117,8 +159,7 @@ if __name__ == "__main__":
                 check_user(users)
             timer_delay = tdelay
         except Exception as e:
-            log("error", "An error has occurred: " + str(e))
-        finally:
+            log("error", "Произошла ошибка: " + str(e))
             timer_delay = 1
 
         uptime = round(time.time() * 1000) - round(startup * 1000)
