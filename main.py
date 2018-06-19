@@ -22,7 +22,7 @@ def check_user(ids):
 
     user_ids = ",".join(str(e) for e in ids)
     get_link = vk_api_link + "users.get?user_ids=" + str(user_ids) + "&fields=sex,online,last_seen&access_token=" + \
-               access_token + "&v=" + v
+               access_token + "&v=" + v + "&lang=ru"
 
     ms = int(round(time.time() * 1000))
     content = HTMLSession().get(get_link)
@@ -34,7 +34,8 @@ def check_user(ids):
 
     log("br", "")
 
-    title_mes = None
+    title_mes = ""
+    user_online = 0
 
     for i in range(num_of_user):
         userinfo = json["response"][i]
@@ -46,8 +47,11 @@ def check_user(ids):
         log("online", nameofuser + " " + sex[int(userinfo["online"])][int(userinfo["sex"]) - 1] +
             " " + device[int(userstat["platform"])] + ", " + time.strftime("%d %b %Y %H:%M:%S", ms_time))
 
+        if int(userinfo["online"]):
+            user_online += 1
+
         if len(users) > 1:
-            title_mes += nameofuser + " — " + time.strftime("%H:%M:%S", ms_time)
+            title_mes = str(num_of_user) + " наблюдаемых / " + str(user_online) + " в сети"
         else:
             title_mes = nameofuser + " " + sex[int(userinfo["online"])][int(userinfo["sex"]) - 1] + \
                         " " + device[int(userstat["platform"])] + ", " + time.strftime("%H:%M:%S", ms_time)
@@ -106,7 +110,7 @@ if __name__ == "__main__":
     startup = time.time()
     runtimes = 0
 
-    print("\n\tVK Online checker\t")
+    print("\n\tVKOC ver.1.1\t")
 
     vk_api_link = str(readConfig(".\\config.ini", vkapiuri_tag))
     access_token = str(readConfig(".\\config.ini", accesstoken_tag))

@@ -1,8 +1,8 @@
 from setuptools import setup
 
 setup(
-    name='VK Online checker',
-    version='1.0',
+    name='VKOC',
+    version='1.1',
     packages=[''],
     url='',
     license='Shmeile Media',
