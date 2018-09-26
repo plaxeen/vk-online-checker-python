@@ -30,7 +30,7 @@ def check_user(ids):
     countMillis = int(round(time.time() * 1000)) - ms
 
     sex = [["была в сети", "был в сети"], ["в сети", "в сети"]]
-    device = ["", "с мобильного", "с iPhone", "", "с Android", "", "с Windows", "с ПК"]
+    device = ["с мобильного", "с iPhone", "с iPad", "с Android", "с Windows Phone", "с Windows 10", "с ПК", "с VK Mobile"]
 
     log("br", "")
 
@@ -45,7 +45,7 @@ def check_user(ids):
         ms_time = time.gmtime(int(userstat["time"]) + 10800)
 
         log("online", nameofuser + " " + sex[int(userinfo["online"])][int(userinfo["sex"]) - 1] +
-            " " + device[int(userstat["platform"])] + ", " + time.strftime("%d %b %Y %H:%M:%S", ms_time))
+            " " + device[int(userstat["platform"])-1] + ", " + time.strftime("%d %b %Y %H:%M:%S", ms_time))
 
         if int(userinfo["online"]):
             user_online += 1
@@ -54,7 +54,7 @@ def check_user(ids):
             title_mes = str(num_of_user) + " наблюдаемых / " + str(user_online) + " в сети"
         else:
             title_mes = nameofuser + " " + sex[int(userinfo["online"])][int(userinfo["sex"]) - 1] + \
-                        " " + device[int(userstat["platform"])] + ", " + time.strftime("%H:%M:%S", ms_time)
+                        " " + device[int(userstat["platform"])-1] + ", " + time.strftime("%H:%M:%S", ms_time)
     log("br", "")
 
     title_ch(title_mes)
@@ -112,25 +112,29 @@ if __name__ == "__main__":
 
     print("\n\tVKOC ver.1.1\t")
 
-    vk_api_link = str(readConfig(".\\config.ini", vkapiuri_tag))
-    access_token = str(readConfig(".\\config.ini", accesstoken_tag))
-    v = str(readConfig(".\\config.ini", version_tag))
+    vk_api_link = str(readConfig("./config.ini", vkapiuri_tag))
+    access_token = str(readConfig("./config.ini", accesstoken_tag))
+    v = str(readConfig("./config.ini", version_tag))
 
     print("\nИнициализация успешна.\nVK API URI = " + vk_api_link + "\nACCESS TOKEN = " + access_token +
           "\nVK API VERSION = " + v + "\n")
 
-    num_of_user = int(input("Колличество отслеживаемых пользователей: "))
+    num_of_user = 0
     users = []
-    for i in range(num_of_user):
-        users.append(input("ID пользователя " + str(i + 1) + ": "))
-    users.sort()
-
     tdelay = 1
-    if len(sys.argv) == 2:
-        tdelay = sys.argv[1]
+
+    if len(sys.argv) >= 2:
+        users = str(sys.argv[1]).split(",")
+        num_of_user = len(users)
+        tdelay = sys.argv[2]
     else:
+        num_of_user = int(input("Колличество отслеживаемых пользователей: "))
+        users = []
+        for i in range(num_of_user):
+            users.append(input("ID пользователя " + str(i + 1) + ": "))
         tdelay = input("Введите задержку таймера (мин): ")
 
+    users.sort()
     timer_delay = tdelay
 
     now = time.localtime()
@@ -142,16 +146,16 @@ if __name__ == "__main__":
     path = None
     if len(users) > 1:
         users_s = "; ".join(str(e) for e in users)
-        path = "logs\\" + "few users\\" + users_s + "\\" + str(now.tm_year) + month + "\\"
+        path = "logs/" + "few users/" + users_s + "/" + str(now.tm_year) + month + "/"
     else:
-        path = "logs\\" + str(users[0]) + "\\" + str(now.tm_year) + month + "\\"
+        path = "logs/" + str(users[0]) + "/" + str(now.tm_year) + month + "/"
 
     if not os.path.exists(path):
         os.makedirs(path)
 
     while True:
         runtimes += 1
-        print()
+        log("br", "")
         log(TAG, "### ###")
         log(TAG, "Программный цикл: " + str(runtimes))
 
