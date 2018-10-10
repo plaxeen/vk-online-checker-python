@@ -1,6 +1,6 @@
-#VKOC — VK ONLINE CHECKER
+# VKOC — VK ONLINE CHECKER
 
-##Описание
+## Описание
 Для работы программы необходим Python не ниже 3 версии. И поставляемый модуль `requests-html`.
 _`pip install requests-html`_
 
